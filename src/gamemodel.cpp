@@ -22,7 +22,7 @@ GameModel::GameModel(QObject* pParent /*= nullptr*/)
     m_closeTimer.setSingleShot(true);
     m_closeTimer.setInterval(1000);
 
-    //shuffleTiles();
+    shuffleTiles();
 }
 
 void GameModel::start()
