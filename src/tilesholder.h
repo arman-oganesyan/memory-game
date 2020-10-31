@@ -1,4 +1,21 @@
-#ifndef TILEHOLDER_H
-#define TILEHOLDER_H
+#ifndef TILESHOLDER_H
+#define TILESHOLDER_H
 
-#endif // TILEHOLDER_H
+#include "tile_fwd.h"
+
+class TilesHolder {
+public:
+    void process(const TilePtr& spTile);
+
+    bool reset();
+    bool match();
+
+    bool isFilled() const;
+    TilePtr first() const;
+    TilePtr second() const;
+private:
+    TileWPtr m_wpFirst;
+    TileWPtr m_wpSecond;
+};
+
+#endif // TILESHOLDER_H
