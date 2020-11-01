@@ -5,9 +5,11 @@
 
 class Tile {
 public:
-    explicit Tile(int nId);
+    Tile();
+    Tile(int nId);
 
     void reset();
+    bool isValid() const;
     bool isClosed() const;
     int id() const;
     TileState state() const;
@@ -15,6 +17,7 @@ public:
 
 private:
     int m_nId;
+    bool m_bValid;
     TileState m_enState;
 };
 

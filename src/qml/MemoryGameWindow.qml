@@ -39,6 +39,8 @@ Window {
         model: gameModel
 
         delegate: TileDelegate {
+            height: grid.cellHeight
+            width: grid.cellWidth
             showCard: open
             matchedCard: matched
         }

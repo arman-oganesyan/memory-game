@@ -9,9 +9,6 @@ Item {
     property color hoverColor: "#f3bfb3"
     property bool cardHovered: mouseArea.containsMouse && !matchedCard && !showCard
 
-    height: grid.cellHeight
-    width: grid.cellWidth
-
     onShowCardChanged: animation.start()
 
     state: matchedCard ? "matched" : "not_matched"

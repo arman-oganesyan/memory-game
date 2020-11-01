@@ -2,7 +2,6 @@
 #define GAMEMODEL_H
 
 #include <QAbstractItemModel>
-#include <QTimer>
 
 #include "tiles/tilesholder.h"
 
@@ -47,32 +46,10 @@ signals:
     void gameFinishedChanged(bool);
 
 private slots:
-    void OnCloseTimer();
+    void OnTileChanged(int nIndex);
 
 private:
-    // property setters
-    void setAttemptsNumber(int nNumber);
-    void setGameFinished(bool bFinished);
-
-    void verifyFinished();
-    void shuffleTiles();
-    void closeTile(const TilePtr& spTile);
-    void emitTilesChanged(const TilePtr& spTile);
-    void emitTilesChanged(std::initializer_list<TilePtr> listTiles);
-    void incrementAttempts();
-
-private:
-
-    const int m_kDimension = 10; // ONLY EVEN NUMBERS
-    const int m_kImagesNumber = (m_kDimension * m_kDimension) / 2;
-    const int m_kTilesNumber = m_kImagesNumber * 2;
-
-    QVector<QSharedPointer<Tile>> m_vTiles;
     TilesHolder m_holder;
-    QTimer m_closeTimer;
-
-    int m_nAttemptsNumber;
-    bool m_bGameFinished;
 };
 
 #endif // GAMEMODEL_H

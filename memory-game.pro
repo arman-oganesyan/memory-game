@@ -36,6 +36,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     src/gamemodel.h \
     src/tiles/tile.h \
-    src/tiles/tile_fwd.h \
     src/tiles/tilesholder.h \
     src/tiles/tilestate.h

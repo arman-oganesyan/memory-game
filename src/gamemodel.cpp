@@ -1,78 +1,30 @@
 #include "gamemodel.h"
 
-#include <algorithm>
-#include <random>
-
 #include "tiles/tile.h"
+
+
+const int m_kDimension = 4; // ONLY EVEN NUMBERS
+const int m_kImagesNumber = (m_kDimension * m_kDimension) / 2;
 
 GameModel::GameModel(QObject* pParent /*= nullptr*/)
     : QAbstractItemModel(pParent)
-    , m_nAttemptsNumber(0)
-    , m_bGameFinished(false)
+    , m_holder(m_kImagesNumber)
 {
-    m_vTiles.reserve(m_kTilesNumber);
-
-    for (int i = 0; i < m_kImagesNumber; ++i) {
-        m_vTiles.push_back(QSharedPointer<Tile>::create(i));
-        m_vTiles.push_back(QSharedPointer<Tile>::create(i));
-    }
-
-    connect(&m_closeTimer, &QTimer::timeout, this, &GameModel::OnCloseTimer);
-    m_closeTimer.setSingleShot(true);
-    m_closeTimer.setInterval(1000);
-
-    shuffleTiles();
+    connect(&m_holder, &TilesHolder::tileChanged, this, &GameModel::OnTileChanged);
+    connect(&m_holder, &TilesHolder::attemptsNumberChanged, this, &GameModel::attemptsNumberChanged);
+    connect(&m_holder, &TilesHolder::gameFinishedChanged, this, &GameModel::gameFinishedChanged);
 }
 
 void GameModel::start()
 {
-    m_closeTimer.stop();
-    m_holder.reset();
-    setAttemptsNumber(0);
-    setGameFinished(false);
-
     beginResetModel();
-
-    for (auto spTile : m_vTiles) {
-        if (spTile)
-            spTile->reset();
-    }
-
-    shuffleTiles();
+    m_holder.reset();
     endResetModel();
 }
 
 void GameModel::processClicked(int nIndex)
 {
-    if (m_holder.isFilled() || m_closeTimer.isActive())
-        return;
-
-    if (nIndex < 0 || nIndex >= m_vTiles.size())
-        return;
-
-    auto spTile = m_vTiles[nIndex];
-    if (!spTile)
-        return;
-
-    if (!spTile->isClosed())
-        return;
-
-    m_holder.process(spTile);
-
-    emitTilesChanged(spTile);
-
-    if (m_holder.isFilled())
-    {
-        if (m_holder.match()) {
-            emitTilesChanged({m_holder.first(), m_holder.second()});
-            m_holder.reset();
-            verifyFinished();
-        }
-        else
-            m_closeTimer.start();
-
-        incrementAttempts();
-    }
+    m_holder.processTile(nIndex);
 }
 
 int GameModel::dimension() const
@@ -82,30 +34,12 @@ int GameModel::dimension() const
 
 int GameModel::attemptsNumber() const
 {
-    return m_nAttemptsNumber;
+    return m_holder.attemptsNumber();
 }
 
 bool GameModel::gameFinished() const
 {
-    return m_bGameFinished;
-}
-
-void GameModel::setAttemptsNumber(int nNumber)
-{
-    if (nNumber != m_nAttemptsNumber)
-    {
-        m_nAttemptsNumber = nNumber;
-        emit attemptsNumberChanged(m_nAttemptsNumber);
-    }
-}
-
-void GameModel::setGameFinished(bool bFinished)
-{
-    if (bFinished != m_bGameFinished)
-    {
-        m_bGameFinished = bFinished;
-        emit gameFinishedChanged(m_bGameFinished);
-    }
+    return m_holder.gameFinished();
 }
 
 QModelIndex GameModel::index(int row, int column, const QModelIndex &parent) const
@@ -113,7 +47,7 @@ QModelIndex GameModel::index(int row, int column, const QModelIndex &parent) con
     if (column != 0 || parent.isValid())
         return QModelIndex();
 
-    if (row < 0 || row >= m_vTiles.size())
+    if (row < 0 || row >= m_holder.tilesCount())
         return QModelIndex();
 
     return createIndex(row, column);
@@ -129,7 +63,7 @@ int GameModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return m_vTiles.size();
+    return m_holder.tilesCount();
 }
 
 int GameModel::columnCount(const QModelIndex &parent) const
@@ -141,18 +75,16 @@ int GameModel::columnCount(const QModelIndex &parent) const
 
 QVariant GameModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_vTiles.size() || index.column() > 0)
+    if (!index.isValid() || index.row() >= m_holder.tilesCount() || index.column() > 0)
         return QVariant();
 
     if (role >= Role_Id && role < Role_Count) {
-        if (auto spTile = m_vTiles[index.row()])
-        {
-            switch (role) {
-                case Role_Id:       return spTile->id();
-                case Role_Open:     return !spTile->isClosed();
-                case Role_Matched:  return spTile->state() == TileState::Matched;
-                default:            return QVariant();
-            }
+        const auto& rTile = m_holder.tileAt(index.row());
+        switch (role) {
+            case Role_Id:       return rTile.id();
+            case Role_Open:     return !rTile.isClosed();
+            case Role_Matched:  return rTile.state() == TileState::Matched;
+            default:            return QVariant();
         }
     }
 
@@ -168,62 +100,7 @@ QHash<int, QByteArray> GameModel::roleNames() const
     };
 }
 
-void GameModel::OnCloseTimer()
+void GameModel::OnTileChanged(int nIndex)
 {
-    closeTile(m_holder.first());
-    closeTile(m_holder.second());
-    m_holder.reset();
-}
-
-void GameModel::verifyFinished() {
-    bool bFinished = true;
-
-    for (const TilePtr& spTile : m_vTiles) {
-        if (!spTile || spTile->state() != TileState::Matched) {
-            bFinished = false;
-            break;
-        }
-    }
-
-    setGameFinished(bFinished);
-}
-
-void GameModel::shuffleTiles()
-{
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(m_vTiles.begin(), m_vTiles.end(), g);
-}
-
-void GameModel::closeTile(const TilePtr &spTile)
-{
-    if (!spTile || spTile->isClosed())
-        return;
-
-    spTile->setState(TileState::Closed);
-    emitTilesChanged(spTile);
-}
-
-void GameModel::emitTilesChanged(const TilePtr &spTile)
-{
-    emitTilesChanged({spTile});
-}
-
-void GameModel::emitTilesChanged(std::initializer_list<TilePtr> listTiles)
-{
-    for (const TilePtr& spTile : listTiles) {
-        if (!spTile)
-            continue;
-
-        int nIndex = m_vTiles.indexOf(spTile);
-        if (nIndex == -1)
-            continue;
-
-        emit dataChanged(index(nIndex, 0, QModelIndex()), index(nIndex, columnCount(QModelIndex()) - 1, QModelIndex()));
-    }
-}
-
-void GameModel::incrementAttempts()
-{
-    setAttemptsNumber(attemptsNumber() + 1);
+    emit dataChanged(index(nIndex, 0, QModelIndex()), index(nIndex, columnCount(QModelIndex()) - 1, QModelIndex()));
 }
