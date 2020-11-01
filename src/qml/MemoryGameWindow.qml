@@ -5,8 +5,8 @@ import QtQuick.Dialogs 1.3
 Window {
     id: root
     visible: true
-    width: 640
-    height: 480
+    width: 1280
+    height: 720
     title: qsTr("Memory Game")
 
     MessageDialog {

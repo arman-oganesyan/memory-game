@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <random>
 
-#include "tile.h"
-#include "tilesholder.h"
+#include "tiles/tile.h"
 
 GameModel::GameModel(QObject* pParent /*= nullptr*/)
     : QAbstractItemModel(pParent)

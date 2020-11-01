@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     if (auto pContext = engine.rootContext())
         pContext->setContextProperty("gameModel", &gameModel);
 
-    const QUrl url(QStringLiteral("qrc:/src/MemoryGameWindow.qml"));
+    const QUrl url(QStringLiteral("qrc:/src/qml/MemoryGameWindow.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)

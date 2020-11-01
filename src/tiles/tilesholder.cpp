@@ -19,7 +19,7 @@ bool TilesHolder::isFilled() const {
     return m_wpFirst && m_wpSecond;
 }
 
-bool TilesHolder::reset() {
+void TilesHolder::reset() {
     m_wpFirst.clear();
     m_wpSecond.clear();
 }

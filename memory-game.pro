@@ -16,8 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         src/main.cpp \
         src/gamemodel.cpp \
-        src/tile.cpp \
-        src/tilesholder.cpp
+        src/tiles/tile.cpp \
+        src/tiles/tilesholder.cpp
 
 RESOURCES += \
     main.qrc
@@ -35,7 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     src/gamemodel.h \
-    src/tile.h \
-    src/tile_fwd.h \
-    src/tilesholder.h \
-    src/tilestate.h
+    src/tiles/tile.h \
+    src/tiles/tile_fwd.h \
+    src/tiles/tilesholder.h \
+    src/tiles/tilestate.h

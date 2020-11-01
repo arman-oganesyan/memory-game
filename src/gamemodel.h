@@ -4,7 +4,7 @@
 #include <QAbstractItemModel>
 #include <QTimer>
 
-#include "tilesholder.h"
+#include "tiles/tilesholder.h"
 
 
 class GameModel : public QAbstractItemModel

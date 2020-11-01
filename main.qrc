@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>src/MemoryGameWindow.qml</file>
+        <file>src/qml/MemoryGameWindow.qml</file>
+        <file>src/qml/TileDelegate.qml</file>
+        <file>src/qml/MainHeader.qml</file>
         <file>img/0-unicorn.png</file>
         <file>img/1-unicorn.png</file>
         <file>img/2-unicorn.png</file>
@@ -51,7 +53,5 @@
         <file>img/47-unicorn.png</file>
         <file>img/48-unicorn.png</file>
         <file>img/49-unicorn.png</file>
-        <file>src/TileDelegate.qml</file>
-        <file>src/MainHeader.qml</file>
     </qresource>
 </RCC>

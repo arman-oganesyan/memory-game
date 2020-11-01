@@ -7,7 +7,7 @@ class TilesHolder {
 public:
     void process(const TilePtr& spTile);
 
-    bool reset();
+    void reset();
     bool match();
 
     bool isFilled() const;
